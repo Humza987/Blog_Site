@@ -19,6 +19,7 @@
     "mongoose": "^7.0.3"
   },
   "devDependencies": {
-    "nodemon": "^2.0.21"
+    "nodemon": "^2.0.21",
+    "vite": "^4.4.9"
   }
 }
