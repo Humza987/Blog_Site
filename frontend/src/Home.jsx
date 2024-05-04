@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import * as React from 'react';
 
 import './App.css'
+import { SignOutButton, SignInButton, SignedIn, SignedOut, useUser } from "@clerk/clerk-react"
 
 function Home() {
     const [data, setData] = useState([]);
@@ -10,6 +11,7 @@ function Home() {
 
     const [button, setButton] = useState(0);
 
+    const { isSignedIn, user, isLoaded } = useUser();
 
 
 
@@ -64,7 +66,7 @@ function Home() {
                         <h3>Title: {post.title}</h3>
                         <h4>Author: {post.author} </h4>
                         <p> Post: {post.body}</p>
-                        <button onClick={() => { handleClick(post._id); }}>Delete</button>
+                        {user?.username===post.author && <button onClick={() => { handleClick(post._id); }}>Delete</button>}
                     </div>
                 ))}
             </div>
