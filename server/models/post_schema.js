@@ -1,21 +1,3 @@
-// import mongoose from 'mongoose';
-// const { Schema } = mongoose;
-
-// const postSchema = new Schema({
-//   title: String, // String is shorthand for {type: String}
-//   author: String,
-//   summary: String,
-//   content: String,
-//   image: String,
-// }, { timestamps: true });
-
-// const posts = mongoose.model("post", postSchema);
-
-// export default posts;
-
-
-
-// post_schema.js
 import mongoose from 'mongoose';
 
 const postSchema = new mongoose.Schema({
@@ -36,7 +18,7 @@ const postSchema = new mongoose.Schema({
     required: true
   },
   image: {
-    type: String, // Now storing the Cloudinary URL instead of just a filename
+    type: String, 
     required: true
   },
   createdAt: {
