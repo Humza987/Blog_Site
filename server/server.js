@@ -16,13 +16,15 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api', posts);
 
-// Connect to MongoDB
-mongoose.connect(process.env.VITE_MONG_URI)
+const PORT = process.env.PORT || 4000;  
+
+mongoose
+  .connect(process.env.VITE_MONG_URI)    
   .then(() => {
-    app.listen(process.env.VITE_PORT, () => {
-      console.log(`Server running on port ${process.env.VITE_PORT}`);
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
     });
   })
   .catch((error) => {
-    console.log('Error connecting to MongoDB:', error);
+    console.error('Error connecting to MongoDB:', error);
   });
