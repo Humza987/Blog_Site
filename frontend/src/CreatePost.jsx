@@ -1,7 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import "./App.css";
 import {
   SignOutButton,
@@ -13,7 +12,6 @@ import {
 
 const CreatePost = () => {
   const { isSignedIn, user, isLoaded } = useUser();
-
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [summary, setSummary] = useState("");
@@ -24,7 +22,10 @@ const CreatePost = () => {
   const [error, setError] = useState();
 
   const navigate = useNavigate();
-  
+
+  // Use backend URL from environment variable
+  const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL || "http://localhost:3000";
+
   useEffect(() => {
     if (isSignedIn && author === "") {
       if (!user.username) {
@@ -38,14 +39,11 @@ const CreatePost = () => {
   // Function to upload image to Cloudinary
   const uploadImage = async (imageFile) => {
     setUploading(true);
-    
     try {
-      // Create a FormData object for the image upload
       const imageData = new FormData();
       imageData.append("file", imageFile);
-      imageData.append("upload_preset", "blog_uploads"); // Create an unsigned upload preset in your Cloudinary dashboard
-      
-      // Upload to Cloudinary
+      imageData.append("upload_preset", "blog_uploads");
+
       const response = await fetch(
         "https://api.cloudinary.com/v1_1/duxahieum/image/upload",
         {
@@ -53,11 +51,10 @@ const CreatePost = () => {
           body: imageData,
         }
       );
-      
+
       const data = await response.json();
       setUploading(false);
-      
-      // Return the secure URL of the uploaded image
+
       return data.secure_url;
     } catch (error) {
       console.error("Error uploading image to Cloudinary:", error);
@@ -70,42 +67,37 @@ const CreatePost = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Validate form fields
     if (!title || !author || !summary || !content || (!image && !imageUrl)) {
       setError(true);
       return;
     }
-    
+
     setError(false);
-    
+
     try {
-      // If there's a new image selected and not already uploaded
       let finalImageUrl = imageUrl;
       if (image && !imageUrl) {
         finalImageUrl = await uploadImage(image);
-        if (!finalImageUrl) return; // Stop if image upload failed
+        if (!finalImageUrl) return;
       }
-      
-      // Create post data
+
       const postData = {
         title,
         author,
         summary,
         content,
-        imageUrl: finalImageUrl, // Use the Cloudinary URL instead of a file
+        imageUrl: finalImageUrl,
       };
-      
-      // Send post data to your API
-      const response = await fetch("/api", {
+
+      const response = await fetch(`${backendUrl}/api`, {
         method: "POST",
-        body: JSON.stringify(postData),
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(postData),
       });
 
       const data = await response.json();
       console.log("Success:", data);
 
-      // Reset form fields
       setTitle("");
       setAuthor("");
       setSummary("");
@@ -113,26 +105,22 @@ const CreatePost = () => {
       setImage(null);
       setImageUrl("");
 
-      navigate("/"); // Redirect if successful
+      navigate("/");
     } catch (error) {
       console.error("Error:", error);
       setError("Failed to create post. Please try again.");
     }
   };
 
-  // Handle image selection and preview
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     setImage(file);
-    setImageUrl(""); // Clear previous URL when new image is selected
-    
-    // Optional: You can also create a preview URL
+    setImageUrl("");
+
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        // This is just for preview, not the final Cloudinary URL
-        const previewUrl = reader.result;
-        // You could set this to state if you want to show a preview
+        // Preview URL could be used if desired
       };
       reader.readAsDataURL(file);
     }
@@ -182,13 +170,13 @@ const CreatePost = () => {
                 accept="image/*"
                 onChange={handleImageChange}
               />
-              
+
               {uploading && <p>Uploading image...</p>}
-              
+
               <button type="submit" disabled={uploading}>
                 {uploading ? "Uploading..." : "Submit"}
               </button>
-              
+
               {error && typeof error === "boolean" && (
                 <div style={{ marginTop: "10px", color: "red" }}>
                   Please Fill out all Fields!

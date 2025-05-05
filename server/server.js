@@ -5,9 +5,19 @@ import posts from './routes/posts.js';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import cors from "cors";
+
 
 // Load environment variables
 dotenv.config();
+
+
+app.use(
+    cors({
+      origin: process.env.VITE_FRONTEND_URL || 'http://localhost:5173',
+    })
+  );
+
 
 // Middleware
 app.use(express.json());

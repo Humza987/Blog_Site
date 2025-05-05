@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import * as React from "react";
-
 import "./App.css";
 import {
   SignOutButton,
@@ -17,15 +16,17 @@ function Home() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { isSignedIn, user, isLoaded } = useUser();
 
+  // Use backend URL from environment variable
+  const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL; 
+  
   useEffect(() => {
-    fetch("/api")
+    fetch(`${backendUrl}/api`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         if (
-          response.headers.get("content-type").indexOf("application/json") ===
-          -1
+          response.headers.get("content-type")?.indexOf("application/json") === -1
         ) {
           throw new Error("Response is not JSON");
         }
@@ -34,21 +35,20 @@ function Home() {
       .then((data) => {
         setData(data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error fetching data:", error);
       });
   }, [refreshTrigger]);
 
   const handleClick = (postId) => {
-    fetch(`api/${postId}`, {
+    fetch(`${backendUrl}/api/${postId}`, {
       method: "DELETE",
     })
       .then((response) => response.json())
       .then((data) => {
-        // Increment refreshTrigger to cause useEffect to run again
-        setRefreshTrigger(prev => prev + 1);
+        setRefreshTrigger((prev) => prev + 1);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error deleting post:", error);
       });
   };
@@ -56,18 +56,17 @@ function Home() {
   if (data === null) {
     return <div>Loading...</div>;
   }
-  
+
   return (
     <>
       <div className="Links"></div>
-
       <div
         style={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           flexDirection: "column",
-          marginTop: "5px"
+          marginTop: "5px",
         }}
       >
         {data.map((post) => (
@@ -79,7 +78,7 @@ function Home() {
                   alt={post.title}
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "/placeholder-image.jpg"; // Fallback image
+                    e.target.src = "/placeholder-image.jpg";
                   }}
                 />
               </div>
@@ -87,7 +86,6 @@ function Home() {
                 <h1>{post.title}</h1>
                 <h2>{"@" + post.author}</h2>
                 <p>Summary: {post.summary}</p>
-
                 <Link to={`/${post._id}`}>
                   <button>View blog</button>
                 </Link>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import * as React from "react";
-
 import "./App.css";
 import { useParams } from "react-router-dom";
 
@@ -9,16 +8,18 @@ const ViewPost = () => {
   const [data, setData] = useState([]);
   const [error, setError] = useState(false);
 
+  // Use backend URL from environment variable
+  const backendUrl = import.meta.env.VITE_REACT_APP_BACKEND_URL || "http://localhost:3000";
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/${id}`);
+        const response = await fetch(`${backendUrl}/api/${id}`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         if (
-          response.headers.get("content-type").indexOf("application/json") ===
-          -1
+          response.headers.get("content-type")?.indexOf("application/json") === -1
         ) {
           throw new Error("Response is not JSON");
         }
@@ -31,7 +32,7 @@ const ViewPost = () => {
       }
     };
     fetchData();
-  }, [id]);
+  }, [id, backendUrl]);
 
   return (
     <>
@@ -51,13 +52,12 @@ const ViewPost = () => {
               <div className="item" key={data._id}>
                 <div className="cont">
                   <div className="image2">
-                    {/* Use Cloudinary URL directly instead of local path */}
                     <img
                       src={data.image}
                       alt={data.title}
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = "/placeholder-image.jpg"; // Fallback image
+                        e.target.src = "/placeholder-image.jpg";
                       }}
                     />
                   </div>
